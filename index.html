@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will it Rain on My Parade? — NASA Space Apps 2025</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin:0; font-family: system-ui, Arial; background:#f5f7fa; color:#111; }
+    header { background:#0b3d91; color:white; padding:10px 16px; font-weight:bold; }
+    #map { height:70vh; }
+    .controls { padding:10px 16px; display:flex; flex-wrap:wrap; gap:10px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    select, input, button { padding:6px 10px; border-radius:6px; border:1px solid #ccc; }
+    button { background:#0b3d91; color:white; cursor:pointer; border:none; }
+    footer { padding:12px 16px; font-size:0.85rem; color:#333; background:#fff; }
+  </style>
+</head>
+<body>
+  <header>🌦️ Will it Rain on My Parade? — NASA Space Apps 2025</header>
+
+  <div class="controls">
+    <label>Launch Site:
+      <select id="launch">
+        <option value="28.573,-80.65">Kennedy / Cape Canaveral</option>
+        <option value="34.742,-120.572">Vandenberg</option>
+        <option value="37.940,-75.466">Wallops</option>
+      </select>
+    </label>
+    <label>Date:
+      <input id="date" type="date" />
+    </label>
+    <button id="go">Show Map</button>
+  </div>
+
+  <div id="map"></div>
+
+  <footer>
+    <strong>Data sources:</strong>
+    <ul>
+      <li><a href="https://worldview.earthdata.nasa.gov/" target="_blank">NASA Worldview</a></li>
+      <li><a href="https://giovanni.gsfc.nasa.gov/" target="_blank">NASA Giovanni</a></li>
+      <li><a href="https://disc.gsfc.nasa.gov/" target="_blank">NASA GES DISC</a></li>
+    </ul>
+    <p>This project uses NASA GIBS precipitation (IMERG) visualization layers to estimate where rain might affect launch sites.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([28.573, -80.65], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let gibsLayer = null;
+
+    const dateEl = document.getElementById('date');
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24*60*60*1000);
+    dateEl.value = yesterday.toISOString().split('T')[0];
+
+    document.getElementById('go').onclick = () => {
+      const [lat, lon] = document.getElementById('launch').value.split(',').map(Number);
+      map.setView([lat, lon], 6);
+      if (gibsLayer) map.removeLayer(gibsLayer);
+      const date = dateEl.value;
+      const layerId = "GPM_3IMERGDF";
+      const url = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerId}/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`;
+      gibsLayer = L.tileLayer(url, { opacity: 0.7 });
+      gibsLayer.addTo(map);
+      L.marker([lat, lon]).addTo(map).bindPopup("Launch Site").openPopup();
+    };
+
+    map.on('click', (e) => {
+      const {lat, lng} = e.latlng;
+      L.popup().setLatLng(e.latlng)
+        .setContent(`Lat: ${lat.toFixed(2)}, Lon: ${lng.toFixed(2)}<br>Use NASA Giovanni for data at this point.`)
+        .openOn(map);
+    });
+  </script>
+</body>
+</html>
