@@ -1,1 +1,35 @@
-# e
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Will it rain on my Parade?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Will it rain on my Parade?</h1>
+    <p>Your NASA-powered tool for checking precipitation risks for outdoor events.</p>
+  </header>
+
+  <main>
+    <form id="parade-form">
+      <label>
+        Event location
+        <input type="text" id="location" placeholder="City, Country" required />
+      </label>
+      <label>
+        Event date
+        <input type="date" id="date" required />
+      </label>
+      <button type="submit">Check NASA Weather Tools</button>
+    </form>
+    <section id="results"></section>
+  </main>
+
+  <footer>
+    <p>Powered by NASA Earthdata and Space Apps 2025. <a href="https://spaceappschallenge.org/" target="_blank">Learn More</a></p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
